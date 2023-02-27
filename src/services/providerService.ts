@@ -3,6 +3,7 @@ import find from 'lodash/find';
 import { NETWORKS, LATEST_VERSION, DEFAULT_NETWORK_FOR_VERSION } from 'config/constants';
 import { getNetwork as getStringNetwork, Provider, Network, TransactionRequest } from '@ethersproject/providers';
 import detectEthereumProvider from '@metamask/detect-provider';
+import { AztecSdk, AztecSdkUser, createAztecSdk, SchnorrSigner, EthAddress, GrumpkinAddress } from '@aztec/sdk';
 
 export default class ProviderService {
   provider: ethers.providers.Web3Provider;
@@ -10,6 +11,16 @@ export default class ProviderService {
   signer: Signer;
 
   providerInfo: { id: string; logo: string; name: string };
+
+  aztecSdk: AztecSdk;
+
+  aztecPublicKey: GrumpkinAddress;
+
+  aztecPrivateKey: Buffer;
+
+  aztecUser: AztecSdkUser;
+
+  aztecSpendingSigner: SchnorrSigner;
 
   constructor(provider?: ethers.providers.Web3Provider) {
     if (provider) {
@@ -51,6 +62,44 @@ export default class ProviderService {
 
   getProviderInfo() {
     return this.providerInfo;
+  }
+
+  async setUpAztekSdk() {
+    const provider = (await this.getProvider()) as Signer;
+    const sdk = await createAztecSdk(provider, {
+      serverUrl: 'http://localhost:8081', // local devnet, run `yarn devnet` to start
+      pollInterval: 2000,
+      debug: 'bb:*',
+      minConfirmation: 1, // ETH block confirmations
+    });
+    await sdk.run();
+    await sdk.awaitSynchronised();
+
+    this.aztecSdk = sdk;
+
+    const mmAddress = EthAddress.fromString(await provider.getAddress());
+
+    // Generate user's privacy keypair
+    // The privacy keypair (also known as account keypair) is used for en-/de-crypting values of the user's spendable funds (i.e. balance) on Aztec
+    // It can but is not typically used for receiving/spending funds, as the user should be able to share viewing access to his/her Aztec account via sharing his/her privacy private key
+    const { publicKey, privateKey } = await sdk.generateAccountKeyPair(mmAddress);
+
+    this.aztecPrivateKey = privateKey;
+    this.aztecPublicKey = publicKey;
+
+    // if (await sdk.isAccountRegistered(accPubKey)) setUserExists(true);
+
+    // Get or generate Aztec SDK local user
+    const account0 = (await sdk.userExists(publicKey)) ? await sdk.getUser(publicKey) : await sdk.addUser(privateKey);
+
+    this.aztecUser = account0;
+
+    // Generate user's spending key & signer
+    // The spending keypair is used for receiving/spending funds on Aztec
+    const { privateKey: spePriKey } = await sdk.generateSpendingKeyPair(mmAddress);
+    const schSigner = await sdk?.createSchnorrSigner(spePriKey);
+
+    this.aztecSpendingSigner = schSigner;
   }
 
   async getNetwork() {
