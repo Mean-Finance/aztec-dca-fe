@@ -335,6 +335,8 @@ export default class Web3Service {
     } catch (e) {
       console.error('Error sending connectWallet event to arcx', e);
     }
+
+    await this.providerService.setUpAztekSdk();
   }
 
   disconnect() {

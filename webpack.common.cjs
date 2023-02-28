@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const tsTransformer = require('@formatjs/ts-transformer');
 const webpack = require('webpack');
@@ -29,6 +30,18 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.ETHERSCAN_API': JSON.stringify('4UTUC6B8A4X6Z3S1PVVUUXFX6IVTFNQEUF'),
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: `${path.dirname(require.resolve(`@aztec/sdk`))}/aztec-connect.wasm`,
+          to: 'aztec-connect.wasm',
+        },
+        {
+          from: `${path.dirname(require.resolve(`@aztec/sdk`))}/web_worker.js`,
+          to: 'web_worker.js',
+        },
+      ],
+    }),
     new WebpackBar(),
   ],
   devtool: 'source-map',
@@ -41,13 +54,37 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
     fallback: {
-      stream: require.resolve('stream-browserify'),
-      crypto: require.resolve('crypto-browserify'),
-      assert: require.resolve('assert/'),
-      http: require.resolve('stream-http'),
-      https: require.resolve('https-browserify'),
-      os: require.resolve('os-browserify/browser'),
-      url: require.resolve('url'),
+      // stream: require.resolve('stream-browserify'),
+      // // crypto: require.resolve('crypto-browserify'),
+      // assert: require.resolve('assert/'),
+      // http: require.resolve('stream-http'),
+      // https: require.resolve('https-browserify'),
+      // os: require.resolve('os-browserify/browser'),
+      // url: {
+      //   fileURLToPath: function(){},
+      // },
+      // url: require.resolve('url/'),
+      // crypto: false,
+      // os: false,
+      // fs: false,
+      // path: false,
+      // url: false,
+      // http: false,
+      // https: false,
+      crypto: false,
+      os: false,
+      fs: false,
+      path: false,
+      url: false,
+      http: false,
+      https: false,
+      worker_threads: false,
+      assert: require.resolve("assert/"),
+      events: require.resolve("events/"),
+      buffer: require.resolve("buffer/"),
+      util: require.resolve("util/"),
+      stream: require.resolve("stream-browserify"),
+      string_decoder: require.resolve("string_decoder/"),
     },
   },
   module: {
