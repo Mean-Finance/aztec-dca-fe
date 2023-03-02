@@ -1,11 +1,11 @@
 import React from 'react';
-import { Token, YieldOption, YieldOptions } from 'types';
+import { Token, YieldOption } from 'types';
+import { Grid } from '@mui/material';
 import { BigNumber } from 'ethers';
-import { StyledGrid } from './styles';
+import { StyledGrid } from '../../../../common/swap-container/styles';
 import { TokenSelector } from './token-selector';
 import { AmountInput } from './amount-input';
 import { AvailableSwapInterval, FrecuencySelector } from './frecuency-selector';
-import { YieldSelector } from './yield-selector';
 import { Resume } from './resume';
 
 interface SwapFirstStepProps {
@@ -29,16 +29,8 @@ interface SwapFirstStepProps {
   handleRateValueChange: (newValue: string) => void;
   rateUsdPrice: number;
   yieldEnabled: boolean;
-  setYieldEnabled: (newValue: boolean) => void;
-  yieldOptions: YieldOptions;
-  isLoadingYieldOptions: boolean;
   fromYield: YieldOption | null | undefined;
-  toYield: YieldOption | null | undefined;
-  setFromYield: (newYield: null | YieldOption) => void;
-  setToYield: (newYield: null | YieldOption) => void;
   fromCanHaveYield: boolean;
-  usdPrice?: BigNumber;
-  toCanHaveYield: boolean;
 }
 
 const SwapFirstStep = React.forwardRef<HTMLDivElement, SwapFirstStepProps>((props, ref) => {
@@ -65,66 +57,48 @@ const SwapFirstStep = React.forwardRef<HTMLDivElement, SwapFirstStepProps>((prop
     yieldEnabled,
     fromCanHaveYield,
     fromYield,
-    usdPrice,
-    isLoadingYieldOptions,
-    setFromYield,
-    setToYield,
-    setYieldEnabled,
-    toYield,
-    yieldOptions,
-    toCanHaveYield,
   } = props;
 
   return (
     <StyledGrid container rowSpacing={2} $show={show} ref={ref}>
-      <TokenSelector from={from} startSelectingCoin={startSelectingCoin} to={to} toggleFromTo={toggleFromTo} />
-      <AmountInput
-        cantFund={cantFund}
-        from={from}
-        fromValue={fromValue}
-        fromValueUsdPrice={fromValueUsdPrice}
-        handleFromValueChange={handleFromValueChange}
-        balance={balance}
-      />
-      <FrecuencySelector
-        frequencies={frequencies}
-        frequencyType={frequencyType}
-        frequencyValue={frequencyValue}
-        handleFrequencyChange={handleFrequencyChange}
-        setFrequencyType={setFrequencyType}
-      />
-      {from && to ? (
-        <YieldSelector
-          frequencyType={frequencyType}
+      <Grid item xs={12}>
+        <TokenSelector from={from} startSelectingCoin={startSelectingCoin} to={to} toggleFromTo={toggleFromTo} />
+      </Grid>
+      <Grid item xs={12}>
+        <AmountInput
+          cantFund={cantFund}
           from={from}
-          fromCanHaveYield={fromCanHaveYield}
-          fromYield={fromYield}
-          isLoadingYieldOptions={isLoadingYieldOptions}
-          rateUsdPrice={rateUsdPrice}
-          setFromYield={setFromYield}
-          setToYield={setToYield}
-          setYieldEnabled={setYieldEnabled}
-          to={to}
-          yieldEnabled={yieldEnabled}
-          yieldOptions={yieldOptions}
-          toYield={toYield}
-          usdPrice={usdPrice}
-          toCanHaveYield={toCanHaveYield}
+          fromValue={fromValue}
+          fromValueUsdPrice={fromValueUsdPrice}
+          handleFromValueChange={handleFromValueChange}
+          balance={balance}
         />
-      ) : null}
-      <Resume
-        buttonToShow={buttonToShow}
-        from={from}
-        frequencyType={frequencyType}
-        frequencyValue={frequencyValue}
-        handleFrequencyChange={handleFrequencyChange}
-        rate={rate}
-        handleRateValueChange={handleRateValueChange}
-        rateUsdPrice={rateUsdPrice}
-        fromYield={fromYield}
-        fromCanHaveYield={fromCanHaveYield}
-        yieldEnabled={yieldEnabled}
-      />
+      </Grid>
+      <Grid item xs={12}>
+        <FrecuencySelector
+          frequencies={frequencies}
+          frequencyType={frequencyType}
+          frequencyValue={frequencyValue}
+          handleFrequencyChange={handleFrequencyChange}
+          setFrequencyType={setFrequencyType}
+        />
+      </Grid>
+
+      <Grid item xs={12}>
+        <Resume
+          buttonToShow={buttonToShow}
+          from={from}
+          frequencyType={frequencyType}
+          frequencyValue={frequencyValue}
+          handleFrequencyChange={handleFrequencyChange}
+          rate={rate}
+          handleRateValueChange={handleRateValueChange}
+          rateUsdPrice={rateUsdPrice}
+          fromYield={fromYield}
+          fromCanHaveYield={fromCanHaveYield}
+          yieldEnabled={yieldEnabled}
+        />
+      </Grid>
     </StyledGrid>
   );
 });

@@ -56,24 +56,6 @@ const StyledFrequencyContainer = styled.div`
   gap: 20px;
 `;
 
-const StyledFrequencyTypeContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
-const StyledFrequencyValueContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const StyledNetworkButtonsContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
 const StyledSummaryContainer = styled.div`
   display: flex;
   gap: 5px;
@@ -84,25 +66,6 @@ const StyledSummaryContainer = styled.div`
 const StyledInputContainer = styled.div`
   margin: 6px 0px;
   display: inline-flex;
-`;
-
-const ButtonWrapper = styled.div`
-  margin-top: 12px;
-  display: flex;
-  gap: 4px;
-`;
-
-const StyledYieldTitleContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const StyledYieldContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
 `;
 
 const StyledYieldHelpContainer = styled(Typography)`
@@ -120,32 +83,18 @@ const StyledYieldHelpDescriptionContainer = styled.div`
   border-radius: 4px;
 `;
 
-const StyledYieldTokensContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
 export {
-  ButtonWrapper,
-  Grid,
   IconButton,
   StyledContentContainer,
   StyledFrequencyContainer,
-  StyledFrequencyTypeContainer,
-  StyledFrequencyValueContainer,
   StyledGrid,
   StyledInputContainer,
-  StyledNetworkButtonsContainer,
   StyledRateContainer,
   StyledSummaryContainer,
   StyledToggleContainer,
   StyledToggleTokenButton,
   StyledTokenContainer,
   StyledTokensContainer,
-  StyledYieldContainer,
   StyledYieldHelpContainer,
   StyledYieldHelpDescriptionContainer,
-  StyledYieldTitleContainer,
-  StyledYieldTokensContainer,
 };

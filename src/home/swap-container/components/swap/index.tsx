@@ -935,17 +935,9 @@ const Swap = ({
           fromCanHaveYield={fromCanHaveYield}
           fromYield={fromYield}
           handleRateValueChange={handleRateValueChange}
-          isLoadingYieldOptions={isLoadingYieldOptions}
           rate={rate}
           rateUsdPrice={rateUsdPrice}
-          setFromYield={setFromYield}
-          setToYield={setToYield}
-          setYieldEnabled={setYieldEnabled}
-          toCanHaveYield={toCanHaveYield}
-          toYield={toYield}
           yieldEnabled={yieldEnabled}
-          yieldOptions={yieldOptions}
-          usdPrice={usdPrice}
         />
       </Slide>
       <Slide
