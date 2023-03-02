@@ -60,7 +60,6 @@ import useRawUsdPrice from 'hooks/useUsdRawPrice';
 import useWeb3Service from 'hooks/useWeb3Service';
 import useErrorService from 'hooks/useErrorService';
 import { shouldTrackError } from 'utils/errors';
-import useReplaceHistory from 'hooks/useReplaceHistory';
 import SwapFirstStep from '../step1';
 import SwapSecondStep from '../step2';
 
@@ -197,8 +196,6 @@ const Swap = ({
   const [pairIsSupported, isLoadingPairIsSupported] = useCanSupportPair(from, to);
 
   const [usdPrice, isLoadingUsdPrice] = useRawUsdPrice(from);
-
-  const replaceHistory = useReplaceHistory();
 
   const fromCanHaveYield = !!(
     from && yieldOptions.filter((yieldOption) => yieldOption.enabledTokens.includes(from.address)).length
@@ -614,13 +611,6 @@ const Swap = ({
     (shouldEnableYield && fromCanHaveYield && isUndefined(fromYield)) ||
     (shouldEnableYield && toCanHaveYield && isUndefined(toYield));
 
-  const handleChangeNetwork = (chainId: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    walletService.changeNetwork(chainId, () => {
-      replaceHistory(`/create/${chainId}`);
-    });
-  };
-
   const shouldDisableButton = shouldDisableApproveButton || !isApproved;
 
   const isTestnet = TESTNETS.includes(currentNetwork.chainId);
@@ -802,18 +792,36 @@ const Swap = ({
   };
 
   const NextStepButton = (
-    <StyledButton
-      size="large"
-      disabled={!from || !to || !fromValue || parseFloat(fromValue) === 0 || !frequencyValue || frequencyValue === '0'}
-      color="secondary"
-      variant="contained"
-      fullWidth
-      onClick={() => handleSetStep(1)}
-    >
-      <Typography variant="body1">
-        <FormattedMessage description="continue" defaultMessage="Continue" />
-      </Typography>
-    </StyledButton>
+    <>
+      <StyledButton
+        size="large"
+        disabled={
+          !from || !to || !fromValue || parseFloat(fromValue) === 0 || !frequencyValue || frequencyValue === '0'
+        }
+        color="secondary"
+        variant="outlined"
+        fullWidth
+        onClick={() => handleSetStep(1)}
+      >
+        <Typography variant="body1">
+          <FormattedMessage description="create position" defaultMessage="Create Position" />
+        </Typography>
+      </StyledButton>
+      <StyledButton
+        size="large"
+        disabled={
+          !from || !to || !fromValue || parseFloat(fromValue) === 0 || !frequencyValue || frequencyValue === '0'
+        }
+        color="secondary"
+        variant="contained"
+        fullWidth
+        onClick={() => handleSetStep(1)}
+      >
+        <Typography variant="body1">
+          <FormattedMessage description="reuse position" defaultMessage="Reuse position" />
+        </Typography>
+      </StyledButton>
+    </>
   );
 
   let ButtonToShow;
@@ -924,7 +932,12 @@ const Swap = ({
           buttonToShow={ButtonToShow}
           show={showFirstStep}
           fromValueUsdPrice={fromValueUsdPrice}
-          onChangeNetwork={handleChangeNetwork}
+          fromCanHaveYield={fromCanHaveYield}
+          fromYield={fromYield}
+          handleRateValueChange={handleRateValueChange}
+          rate={rate}
+          rateUsdPrice={rateUsdPrice}
+          yieldEnabled={yieldEnabled}
         />
       </Slide>
       <Slide

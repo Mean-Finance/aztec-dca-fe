@@ -8,84 +8,18 @@ import Typography from '@mui/material/Typography';
 import { FormattedMessage, useIntl } from 'react-intl';
 import TokenInput from 'common/token-input';
 import FrequencyInput from 'common/frequency-easy-input';
-import {
-  DEFAULT_MINIMUM_USD_RATE_FOR_YIELD,
-  MINIMUM_USD_RATE_FOR_YIELD,
-  STRING_SWAP_INTERVALS,
-  SWAP_INTERVALS_MAP,
-} from 'config/constants';
+import { STRING_SWAP_INTERVALS, SWAP_INTERVALS_MAP } from 'config/constants';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Button from 'common/button';
 import { BigNumber } from 'ethers';
-import Switch from '@mui/material/Switch';
-import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import Collapse from '@mui/material/Collapse';
-import YieldTokenSelector from 'common/yield-token-selector';
-import useCurrentNetwork from 'hooks/useSelectedNetwork';
-import { formatCurrencyAmount, usdPriceToToken } from 'utils/currency';
 import findIndex from 'lodash/findIndex';
-
-const StyledGrid = styled(Grid)<{ $show: boolean }>`
-  ${({ $show }) => !$show && 'position: absolute;width: auto;'};
-  top: 16px;
-  left: 16px;
-  right: 16px;
-  z-index: 89;
-`;
-
-const StyledContentContainer = styled.div`
-  background-color: #292929;
-  padding: 16px;
-  border-radius: 8px;
-`;
-
-const StyledSummaryContainer = styled.div`
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  align-items: center;
-`;
-
-const StyledInputContainer = styled.div`
-  margin: 6px 0px;
-  display: inline-flex;
-`;
-
-const StyledYieldTitleContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const StyledYieldContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-`;
-
-const StyledYieldHelpContainer = styled(Typography)`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-`;
-
-const StyledYieldHelpDescriptionContainer = styled.div`
-  display: flex;
-  padding: 10px;
-  background-color: #212121;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-`;
-
-const StyledYieldTokensContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-`;
+import {
+  StyledContentContainer,
+  StyledGrid,
+  StyledInputContainer,
+  StyledSummaryContainer,
+} from 'common/swap-container/styles';
+import { YieldSelector } from './yield-selector';
 
 const StyledNextSwapContainer = styled.div`
   display: flex;
@@ -150,16 +84,6 @@ const SwapSecondStep = React.forwardRef<HTMLDivElement, SwapSecondStepProps>((pr
     existingPair,
     toCanHaveYield,
   } = props;
-
-  const [isHelpExpanded, setHelpExpanded] = React.useState(false);
-
-  const currentNetwork = useCurrentNetwork();
-
-  const minimumTokensNeeded = usdPriceToToken(
-    from,
-    MINIMUM_USD_RATE_FOR_YIELD[currentNetwork.chainId] || DEFAULT_MINIMUM_USD_RATE_FOR_YIELD,
-    usdPrice
-  );
 
   const freqIndex = findIndex(SWAP_INTERVALS_MAP, { value: frequencyType });
 
@@ -239,87 +163,27 @@ const SwapSecondStep = React.forwardRef<HTMLDivElement, SwapSecondStepProps>((pr
         </StyledContentContainer>
       </Grid>
       <Grid item xs={12}>
-        <StyledContentContainer>
-          {/* yield */}
-          <StyledYieldContainer>
-            <StyledYieldTitleContainer>
-              <Typography variant="body1">
-                <FormattedMessage description="yieldTitle" defaultMessage="Generate yield" />
-              </Typography>
-              <Switch
-                checked={yieldEnabled}
-                onChange={() => setYieldEnabled(!yieldEnabled)}
-                name="yieldEnabled"
-                color="primary"
-              />
-            </StyledYieldTitleContainer>
-            {yieldEnabled && (
-              <StyledYieldTokensContainer>
-                <YieldTokenSelector
-                  token={from}
-                  yieldOptions={yieldOptions}
-                  isLoading={isLoadingYieldOptions}
-                  setYieldOption={setFromYield}
-                  yieldSelected={fromYield}
-                />
-                <YieldTokenSelector
-                  token={to}
-                  yieldOptions={yieldOptions}
-                  isLoading={isLoadingYieldOptions}
-                  setYieldOption={setToYield}
-                  yieldSelected={toYield}
-                />
-              </StyledYieldTokensContainer>
-            )}
-            {!yieldEnabled && !fromCanHaveYield && !toCanHaveYield && (
-              <Typography variant="body1" color="rgba(255, 255, 255, 0.5)">
-                <FormattedMessage
-                  description="disabledByNoOption"
-                  // eslint-disable-next-line no-template-curly-in-string
-                  defaultMessage="None of the tokens you have selected support yield platforms."
-                />
-              </Typography>
-            )}
-            {!yieldEnabled &&
-              from &&
-              fromCanHaveYield &&
-              !!rateUsdPrice &&
-              rateUsdPrice <
-                (MINIMUM_USD_RATE_FOR_YIELD[currentNetwork.chainId] || DEFAULT_MINIMUM_USD_RATE_FOR_YIELD) && (
-                <Typography variant="body1" color="rgba(255, 255, 255, 0.5)">
-                  <FormattedMessage
-                    description="disabledByUsdValue"
-                    // eslint-disable-next-line no-template-curly-in-string
-                    defaultMessage="You have to invest at least a rate of ${minimum} USD ({minToken} {symbol}) per {frequency} to enable this option."
-                    values={{
-                      minimum: MINIMUM_USD_RATE_FOR_YIELD[currentNetwork.chainId] || DEFAULT_MINIMUM_USD_RATE_FOR_YIELD,
-                      minToken: formatCurrencyAmount(minimumTokensNeeded, from, 3, 3),
-                      symbol: from.symbol,
-                      frequency: intl.formatMessage(
-                        STRING_SWAP_INTERVALS[frequencyType.toString() as keyof typeof STRING_SWAP_INTERVALS]
-                          .singularSubject
-                      ),
-                    }}
-                  />
-                </Typography>
-              )}
-            <StyledYieldHelpContainer variant="body1" onClick={() => setHelpExpanded(!isHelpExpanded)}>
-              <HelpOutlineOutlinedIcon fontSize="inherit" color="primary" />
-              <FormattedMessage description="howItWorks" defaultMessage="How it works" />
-              {isHelpExpanded ? <ArrowDropUpIcon fontSize="inherit" /> : <ArrowDropDownIcon fontSize="inherit" />}
-            </StyledYieldHelpContainer>
-            <Collapse in={isHelpExpanded}>
-              <StyledYieldHelpDescriptionContainer>
-                <Typography variant="body2">
-                  <FormattedMessage
-                    description="howItWorksDescription"
-                    defaultMessage="Funds will be deposited into your selected platform to generate yield while they wait to be swapped or withdrawn. The safety of the funds will be up to the selected platform, so please do your own research to perform an educated risk/reward assessment."
-                  />
-                </Typography>
-              </StyledYieldHelpDescriptionContainer>
-            </Collapse>
-          </StyledYieldContainer>
-        </StyledContentContainer>
+        {from && to ? (
+          <Grid item xs={12}>
+            <YieldSelector
+              frequencyType={frequencyType}
+              from={from}
+              fromCanHaveYield={fromCanHaveYield}
+              fromYield={fromYield}
+              isLoadingYieldOptions={isLoadingYieldOptions}
+              rateUsdPrice={rateUsdPrice}
+              setFromYield={setFromYield}
+              setToYield={setToYield}
+              setYieldEnabled={setYieldEnabled}
+              to={to}
+              yieldEnabled={yieldEnabled}
+              yieldOptions={yieldOptions}
+              toYield={toYield}
+              usdPrice={usdPrice}
+              toCanHaveYield={toCanHaveYield}
+            />
+          </Grid>
+        ) : null}
       </Grid>
       <Grid item xs={12}>
         <StyledContentContainer>
